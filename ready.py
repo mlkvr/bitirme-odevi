@@ -2,7 +2,13 @@ from numpy import array
 from numpy import hstack
 from keras.models import Sequential
 from keras.layers import Dense
+from pandas import read_csv
+
+import matplotlib.pyplot as plt
 # split a multivariate sequence into samples
+
+def train_test_split(data, n_test):
+    return data[:-n_test], data[-n_test:]
 
 def split_sequences(sequences, n_steps):
     X, y = list(), list()
@@ -19,18 +25,21 @@ def split_sequences(sequences, n_steps):
         y.append(seq_y)
     return array(X), array(y)
 
-# define input sequence
-in_seq1 = array([10, 20, 30, 40, 50, 60, 70, 80, 90])
-in_seq2 = array([15, 25, 35, 45, 55, 65, 75, 85, 95])
-out_seq = array([in_seq1[i]+in_seq2[i] for i in range(len(in_seq1))])
-# convert to [rows, columns] structure
-in_seq1 = in_seq1.reshape((len(in_seq1), 1))
-in_seq2 = in_seq2.reshape((len(in_seq2), 1))
-out_seq = out_seq.reshape((len(out_seq), 1))
-# horizontally stack columns
-dataset = hstack((in_seq1, in_seq2, out_seq))
+conf_data = read_csv("trdata.csv", index_col=False, usecols=["confirmed"])
+recv_data = read_csv("trdata.csv", index_col=False, usecols=["recoveries"])
+outp_data = read_csv("trdata.csv", index_col=False, usecols=["deaths"])
+
+items1 = conf_data.to_numpy(dtype=int)
+items2 = recv_data.to_numpy(dtype=int)
+targets = outp_data.to_numpy(dtype=int)
+
+items1 = items1.reshape((len(items1), 1))
+items2 = items2.reshape((len(items2), 1))
+targets = targets.reshape((len(targets), 1))
+
+dataset = hstack((items1, items2, targets))
 # choose a number of time steps
-n_steps = 3
+n_steps = 1
 # convert into input/output
 X, y = split_sequences(dataset, n_steps)
 # flatten input
@@ -42,9 +51,21 @@ model.add(Dense(100, activation='relu', input_dim=n_input))
 model.add(Dense(1))
 model.compile(optimizer='adam', loss='mse')
 # fit model
-model.fit(X, y, epochs=2000, verbose=0)
+history = model.fit(X, y,validation_split = 0.2, epochs=3000, verbose=0)
 # demonstrate prediction
-x_input = array([[80, 85], [90, 95], [100, 105]])
+loss = history.history["loss"]
+val_loss = history.history["val_loss"]
+epochs = range(1,len(loss)+1)
+
+plt.figure()
+plt.plot(epochs,loss,'bo',label='Training loss')
+plt.plot(epochs,val_loss,'b',label='Validation loss')
+plt.title("Training and Validation Loss")
+plt.legend()
+
+plt.savefig('result.png')
+
+x_input = array([[95591], [14918]])
 x_input = x_input.reshape((1, n_input))
 yhat = model.predict(x_input, verbose=0)
 print(yhat)

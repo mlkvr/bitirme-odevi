@@ -25,9 +25,9 @@ def split_sequences(sequences, n_steps):
         y.append(seq_y)
     return array(X), array(y)
 
-conf_data = read_csv("almdata.csv", index_col=False, usecols=["confirmed"])
-recv_data = read_csv("almdata.csv", index_col=False, usecols=["recoveries"])
-outp_data = read_csv("almdata.csv", index_col=False, usecols=["deaths"])
+conf_data = read_csv("trdata.csv", index_col=False, usecols=["confirmed"])
+recv_data = read_csv("trdata.csv", index_col=False, usecols=["recoveries"])
+outp_data = read_csv("trdata.csv", index_col=False, usecols=["deaths"])
 
 items1 = conf_data.to_numpy(dtype=int)
 items2 = recv_data.to_numpy(dtype=int)

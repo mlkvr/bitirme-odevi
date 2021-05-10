@@ -64,8 +64,8 @@ plt.title("Training and Validation Loss")
 plt.legend()
 
 plt.savefig('result.png')
-
-x_input = array([[2699231], [2448828]])
+                #enfekte    iyileşen
+x_input = array([[2655633], [2534996]])
 x_input = x_input.reshape((1, n_input))
 yhat = model.predict(x_input, verbose=0)
 print(yhat)
